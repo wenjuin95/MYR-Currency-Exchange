@@ -16,21 +16,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const requestUrl = new URL(req.url || "/", "https://localhost");
-	const upstreamPath = requestUrl.pathname.replace(/^\/(?:api\/)?bnm-api\/?/, "");
+	const upstreamPath = requestUrl.searchParams.get("path") || "";
+	requestUrl.searchParams.delete("path");
 	const upstreamUrl = `https://api.bnm.gov.my/${upstreamPath}${requestUrl.search}`;
 
 	try {
+		const acceptHeader = req.headers.accept;
+		const accept = Array.isArray(acceptHeader) ? acceptHeader[0] : acceptHeader;
 		const upstreamResponse = await fetch(upstreamUrl, {
 			headers: {
-				Accept: req.headers.accept || "application/vnd.BNM.API.v1+json",
+				Accept: accept || "application/vnd.BNM.API.v1+json",
 			},
 		});
-		const body = await upstreamResponse.text();
+		const body = await upstreamResponse.json();
 
 		res.status(upstreamResponse.status).setHeader(
 			"Content-Type",
 			upstreamResponse.headers.get("content-type") || "application/json",
-		).json(JSON.parse(body));
+		).json(body);
 	} catch {
 		res.status(502).json({ error: "Unable to reach Bank Negara Malaysia API" });
 	}
