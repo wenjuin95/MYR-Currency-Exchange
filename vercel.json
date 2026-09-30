@@ -3,7 +3,7 @@
 	"rewrites": [
 		{
 			"source": "/bnm-api/:path*",
-			"destination": "/api/bnm-api/:path*"
+			"destination": "https://api.bnm.gov.my/:path*"
 		}
 	]
 }
