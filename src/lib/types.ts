@@ -45,3 +45,15 @@ export interface FormattedCurrency {
 	rate: number;
 	unit: number;
 }
+
+export type VercelRequest = {
+	method?: string;
+	url?: string;
+	headers: Record<string, string | string[] | undefined>;
+};
+
+export type VercelResponse = {
+	status: (code: number) => VercelResponse;
+	setHeader: (name: string, value: string) => VercelResponse;
+	json: (body: unknown) => void;
+};
