@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Api } from "@/lib/api";
 import { currencyToCountry, countryNames, per100UnitCurrencies, use1000units, use100units } from "@/lib/country_code";
-import { HistoricalRateData, YearMonthPair, Timeframe, FormattedCurrency } from "@/lib/types"
+import { HistoricalRateData, RateEntry, YearMonthPair, Timeframe, FormattedCurrency } from "@/lib/types"
 import * as Flags from "country-flag-icons/react/1x1";
 
 	interface CountryFlagProps {
@@ -55,20 +55,15 @@ export class HelperFunction {
 	 * @note "....rate.slice(-7)" => take the latest month with data and slice the last 7 days for the chart
 	*/
 	static processDataFor7D(data: HistoricalRateData[]): HistoricalRateData[] {
-		const validMonth = data.filter(
-			monthObj => monthObj.data && Array.isArray(monthObj.data.rate) && monthObj.data.rate.length > 0
-		);
+		const validMonth = data.filter(monthObj => monthObj.data.length > 0);
 		if (validMonth.length === 0) return [];
-		const allFlattenedRates = validMonth.flatMap(monthObj => monthObj.data.rate);
+		const allFlattenedRates = validMonth.flatMap(monthObj => monthObj.data);
 		const latest7Days = allFlattenedRates.slice(-7);
 		const latestActiveMonth = validMonth[validMonth.length - 1];
 		if (latestActiveMonth) {
 			return [{
 				...latestActiveMonth,
-				data: {
-					...latestActiveMonth.data,
-					rate: latest7Days,
-				}
+				data: latest7Days,
 			}];
 		}
 		return [];
@@ -81,7 +76,8 @@ export class HelperFunction {
 	 * @note use the country code to get the country name from the countryNames mapping file
 	 * @note divide 100 because some country have their rate based on 100 unit instead of 1 unit
 	 * @note check 100 unit or 1000 unit currency and adjust the rate accordingly for better display
-	 * @note parse the middle_rate to 4 decimal places for better display
+	 * @note invert the MYR-base rate so the UI can display the value of one
+	 *       foreign-currency unit in MYR
 	*/
 	static async getAllCountryCurrencyAndRate(): Promise<FormattedCurrency[]> {
 		try {
@@ -92,36 +88,36 @@ export class HelperFunction {
 				? JSON.parse(exchangeRateData)
 				: exchangeRateData;
 
-			if (!exchangeRateList?.data || !Array.isArray(exchangeRateList.data) || exchangeRateList.meta.total_result !== 27) {
-				// console.error("Unexpected data format or missing data in exchange rate response:", exchangeRateList);
+			if (!Array.isArray(exchangeRateList)) {
 				return [];
 			}
 
+			return exchangeRateList
+				.filter((item: RateEntry) => item.quote !== "MYR")
+				.map((item: RateEntry) => {
+					const code = item.quote || "";
+					let middleRate = item.rate ? (1 / item.rate) : 0;
 
-			return exchangeRateList.data.map((item: { currency_code: string; rate: { middle_rate: string } }) => {
-				const code = item.currency_code || "";
-				let middleRate = parseFloat(item.rate.middle_rate || "0");
-
-				if (per100UnitCurrencies.has(code)) {
-					middleRate = middleRate / 100;
-				}
+					if (per100UnitCurrencies.has(code)) {
+						middleRate = middleRate / 100;
+					}
 
 
-				let targetunit = 1;
-				if (use1000units.has(code)) {
-					targetunit = 1000;
-				} else if (use100units.has(code)) {
-					targetunit = 100;
-				}
-				const finalRate = middleRate * targetunit;
+					let targetunit = 1;
+					if (use1000units.has(code)) {
+						targetunit = 1000;
+					} else if (use100units.has(code)) {
+						targetunit = 100;
+					}
+					const finalRate = middleRate * targetunit;
 
-				return {
-					country: countryNames[code] || code,
-					code: code,
-					rate: finalRate.toFixed(4),
-					unit: targetunit
-				};
-			});
+					return {
+						country: countryNames[code] || code,
+						code: code,
+						rate: Number(finalRate.toFixed(4)),
+						unit: targetunit
+					};
+				});
 		} catch (err) {
 			console.error("Error inside getFormattedExchangeRates processing loop:", err);
 			return [];
@@ -140,9 +136,13 @@ export class HelperFunction {
 			if (data) {
 				const dataList = typeof data === "string"
 					? JSON.parse(data)
-					: data
-				const updateDate = dataList.meta.last_updated;
-				return new Date(updateDate);
+					: data;
+
+				// Check if it's an array and has at least one item
+				if (Array.isArray(dataList) && dataList.length > 0) {
+					const updateDate = dataList[0].date;
+					return new Date(updateDate);
+				}
 			}
 			return null;
 		} catch (err) {
@@ -155,34 +155,34 @@ export class HelperFunction {
 	 * Get the current hour in Kuala Lumpur timezone
 	 * @return the current hour in Kuala Lumpur timezone
 	*/
-	static getCurrentHour() {
-		const now = new Date();
-		const formatter = new Intl.DateTimeFormat('en-MY', {
-			timeZone: 'Asia/Kuala_Lumpur',
-			hour: '2-digit',
-			minute: '2-digit',
-			second: '2-digit',
-			hour12: false,
-		});
-		const parts = formatter.formatToParts(now);
-		const hour = parts.find(part => part.type === 'hour')?.value || "00";
-		return hour;
-	}
+	// static getCurrentHour() {
+	// 	const now = new Date();
+	// 	const formatter = new Intl.DateTimeFormat('en-MY', {
+	// 		timeZone: 'Asia/Kuala_Lumpur',
+	// 		hour: '2-digit',
+	// 		minute: '2-digit',
+	// 		second: '2-digit',
+	// 		hour12: false,
+	// 	});
+	// 	const parts = formatter.formatToParts(now);
+	// 	const hour = parts.find(part => part.type === 'hour')?.value || "00";
+	// 	return hour;
+	// }
 
 	/**
 	 * Determine the current session (0900 or 1700) based on the hour in Kuala Lumpur timezone
 	 * @param hour the current hour in Kuala Lumpur timezone
 	 * @return "0900" if it's between 9am and 5pm, otherwise return "1700"
 	*/
-	static getCurrentSession(hour: number) {
-		if (hour >= 9 && hour < 12) {
-			return "0900";
-		} else if (hour >= 12 && hour < 17) {
-			return "1200";
-		} else {
-			return "1700";
-		}
-	}
+	// static getCurrentSession(hour: number) {
+	// 	if (hour >= 9 && hour < 12) {
+	// 		return "0900";
+	// 	} else if (hour >= 12 && hour < 17) {
+	// 		return "1200";
+	// 	} else {
+	// 		return "1700";
+	// 	}
+	// }
 
 	static handleAmountInput(initialValue: string) {
 		const [amount, setAmount] = useState<string>(initialValue);

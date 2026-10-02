@@ -11,15 +11,4 @@ export default defineConfig({
 		"@": path.resolve(__dirname, "src"),
 	},
   },
-
-  // proxy configuration for development server (to avoid CORS issues when making API requests)
-  server: {
-	proxy: {
-		'/bnm-api': {
-			target: 'https://api.bnm.gov.my',
-			changeOrigin: true,
-			rewrite: (path) => path.replace(/^\/bnm-api/, ''),
-		},
-	},
-  },
 })

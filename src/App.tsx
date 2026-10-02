@@ -1,4 +1,5 @@
 import Header from "@/components/header/Header"
+import Weather from "@/components/weather/Weather"
 import CurrencyConverter from "@/components/converter/CurrencyConverter"
 import Overview from "@/components/overview/Overview"
 import Footer from "@/components/footer/Footer"
@@ -15,6 +16,7 @@ function App() {
 	return (
 		<div className="flex flex-col gap-y-5">
 			<Header />
+			<Weather />
 			<CurrencyConverter />
 			<Overview />
 			<Footer />

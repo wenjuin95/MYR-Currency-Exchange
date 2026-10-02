@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { CurrencyChartProps, RateEntry, HistoricalRateData} from '@/lib/types';
+import { CurrencyChartProps, RateEntry} from '@/lib/types';
 
 // 1. Register Chart.js modules
 ChartJS.register(
@@ -55,22 +55,14 @@ export default function CurrencyChart({ historicalData }: CurrencyChartProps) {
 		// console.log("Processing chart data from historicalData:", historicalData);
 
 		// Extract labels (Dates) securely
-		const labels = historicalData.flatMap((monthObj: HistoricalRateData) => {
-			if (monthObj?.data?.rate && Array.isArray(monthObj.data.rate)) {
-				return monthObj.data.rate.map((day: RateEntry) => day.date);
-			}
-			return [];
-		});
+		const labels = historicalData.flatMap((monthObj) =>
+			monthObj.data.map((day: RateEntry) => day.date)
+		);
 
 		// Extract data points (Rates) securely
-		// const countryCode = historicalData[0]?.data?.currency_code || ""; // Safely access currency code
-		const rates = historicalData.flatMap((monthObj: HistoricalRateData) => {
-			// console.log(`Country code for per100Unit check: ${countryCode}`);
-			if (monthObj?.data?.rate && Array.isArray(monthObj.data.rate)) {
-				return monthObj.data.rate.map((day: RateEntry) => Number(day.middle_rate).toFixed(3));
-			}
-			return [];
-		});
+		const rates = historicalData.flatMap((monthObj) =>
+			monthObj.data.map((day: RateEntry) => (1 / day.rate).toFixed(3))
+		);
 
 		return {
 			labels: labels,
