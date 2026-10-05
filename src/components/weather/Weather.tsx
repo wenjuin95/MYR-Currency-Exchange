@@ -95,7 +95,7 @@ export default function Weather() {
                             <div className="mt-8 grid gap-4 md:grid-cols-3 lg:grid-cols-3">
                                 <div className="rounded-2xl border border-border/70 bg-primary/10 p-5">
                                     <div className="flex items-center gap-4">
-                                        <FontAwesomeIcon icon={getConditionIcon(weather.code)} style={{ stroke: 'black', strokeWidth: 10 }} className="text-4xl" />
+                                        <FontAwesomeIcon icon={getConditionIcon(weather.code)} style={{ stroke: 'black', strokeWidth: 10 }} className="text-4xl text-white" />
                                         <div>
                                             <p className="text-4xl font-bold">{weather.temperature}°C</p>
                                             <p className="text-sm text-muted-foreground">{conditions[weather.code] || "Current conditions"}</p>
