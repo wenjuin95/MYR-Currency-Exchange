@@ -6,7 +6,7 @@ export class Api {
     static async getAllCountryExchangeRate() {
         try {
             // Use v2/rates, base=MYR, and pin the provider to "bnm"
-            const res = await fetch(`${baseUrl}/rates?base=MYR&providers=bnm`);
+            const res = await fetch(`${baseUrl}/rates?base=myr&providers=bnm`);
 
             if (!res.ok) {
                 throw new Error(`Fail to fetch exchange rate: ${res.status} ${res.statusText}`);

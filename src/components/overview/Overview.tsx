@@ -28,7 +28,7 @@ export default function Overview() {
 						<>
 							<div className="w-2 h-2 bg-theme-success rounded-full animate-pulse "/>
 							<p className="font-semibold text-xs lg:text-sm">
-								Updated: {updateDate?.getDate()}/{updateDate?.getMonth() !== undefined ? updateDate.getMonth() + 1 : ''}/{updateDate?.getFullYear()} ({updateDate?.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})})
+								latest Update from BNM: {updateDate?.getDate()}/{updateDate?.getMonth() !== undefined ? updateDate.getMonth() + 1 : ''}/{updateDate?.getFullYear()}
 							</p>
 						</>
 					):(

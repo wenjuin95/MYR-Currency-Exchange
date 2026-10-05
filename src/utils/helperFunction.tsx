@@ -98,11 +98,6 @@ export class HelperFunction {
 					const code = item.quote || "";
 					let middleRate = item.rate ? (1 / item.rate) : 0;
 
-					if (per100UnitCurrencies.has(code)) {
-						middleRate = middleRate / 100;
-					}
-
-
 					let targetunit = 1;
 					if (use1000units.has(code)) {
 						targetunit = 1000;

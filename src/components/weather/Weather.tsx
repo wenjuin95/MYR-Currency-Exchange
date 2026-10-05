@@ -69,7 +69,7 @@ export default function Weather() {
                                 <p className="mt-2 text-sm text-muted-foreground">Live conditions from Open-Meteo</p>
                             </div>
                             <label className="flex items-center gap-3 text-sm font-medium" htmlFor="weather-city">
-                                <FontAwesomeIcon icon={faLocationDot} className="text-primary" style={{ stroke: 'black', strokeWidth: 10 }} />
+                                <FontAwesomeIcon icon={faLocationDot} className="text-white" style={{ stroke: 'black', strokeWidth: 10 }} />
                                 <select
                                     id="weather-city"
                                     value={city}
@@ -85,7 +85,7 @@ export default function Weather() {
 
                         {loading && !weather ? (
                             <div className="mt-8 flex min-h-32 items-center justify-center text-sm text-muted-foreground" role="status">
-                                <FontAwesomeIcon icon={faRotate} spin className="mr-3 text-primary" /> Loading current conditions...
+                                <FontAwesomeIcon icon={faRotate} spin className="mr-3 text-white" /> Loading current conditions...
                             </div>
                         ) : error || !weather ? (
                             <div className="mt-8 flex min-h-32 items-center justify-center text-sm text-muted-foreground text-center" role="alert">
@@ -104,12 +104,12 @@ export default function Weather() {
                                     <p className="mt-4 text-xs uppercase tracking-wider text-muted-foreground">{selectedCity.label}</p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-primary/10 p-5">
-                                    <FontAwesomeIcon icon={faTemperatureHalf} className="text-primary" style={{ stroke: 'black', strokeWidth: 10 }} />
+                                    <FontAwesomeIcon icon={faTemperatureHalf} className="text-white" style={{ stroke: 'black', strokeWidth: 10 }} />
                                     <p className="mt-4 text-2xl font-bold">{weather.temperature}°</p>
                                     <p className="text-sm text-muted-foreground">{getTemperatureLabel(weather.temperature)}</p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-primary/10 p-5">
-                                    <FontAwesomeIcon icon={faSmog} className="text-primary" style={{ stroke: 'black', strokeWidth: 10 }} />
+                                    <FontAwesomeIcon icon={faSmog} className="text-white" style={{ stroke: 'black', strokeWidth: 10 }} />
                                     <p className="mt-4 text-2xl font-bold">{weather.aqi}</p>
                                     <p className="text-sm text-muted-foreground">AQI · {getAqiLabel(weather.aqi)}</p>
                                 </div>

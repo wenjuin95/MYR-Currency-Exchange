@@ -7,6 +7,7 @@ export function useCurrencyRate(amount: string) {
 	const [currencies, setCurrencies] = useState<FormattedCurrency[]>([]);
 	const [selectCountry, setSelectCountry] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isForeignToMyr, setIsForeignToMyr] = useState<boolean>(true);
 
 	useEffect(() => {
 		async function getCountryCurrency() {
@@ -27,13 +28,25 @@ export function useCurrencyRate(amount: string) {
 		getCountryCurrency();
 	}, []);
 
+	const toggleDirection = () => {
+		setIsForeignToMyr(prev => !prev);
+	}
+
 	const result = useMemo(() => {
 		const numericAmount = Number(amount);
 		const currency = currencies.find(c => c.code === selectCountry);
 		if (!currency || Number.isNaN(numericAmount)) {
 			return "0.00";
 		}
-		const converted = (numericAmount / currency.unit) * currency.rate;
+
+		const unit = currency.unit || 1;
+		let converted = 0;
+
+		if (isForeignToMyr) {
+			converted = (numericAmount / unit) * currency.rate;
+		} else {
+			converted = (numericAmount / currency.rate) * unit;
+		}
 
 		return converted.toFixed(2);
 	}, [amount, selectCountry, currencies]);
@@ -53,6 +66,8 @@ export function useCurrencyRate(amount: string) {
 		result,
 		groupedCurrencies,
 		isLoading,
+		isForeignToMyr,
+		toggleDirection,
 		Error
 	}
 }
