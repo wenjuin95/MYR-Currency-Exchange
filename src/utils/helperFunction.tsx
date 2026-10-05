@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Api } from "@/lib/api";
-import { currencyToCountry, countryNames, per100UnitCurrencies, use1000units, use100units } from "@/lib/country_code";
+import { currencyToCountry, countryNames, use1000units, use100units } from "@/lib/country_code";
 import { HistoricalRateData, RateEntry, YearMonthPair, Timeframe, FormattedCurrency } from "@/lib/types"
 import * as Flags from "country-flag-icons/react/1x1";
 
